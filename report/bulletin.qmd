@@ -1,0 +1,136 @@
+---
+title: "WEEK 34 EPIDEMIOLOGICAL BULLETIN (19th – 25th Aug, 2024)"
+format:
+  docx:
+    reference-doc: template.docx
+    toc: false
+    number-sections: false
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+# ============================================================
+# AUTOMATED BULLETIN PIPELINE
+# ============================================================
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(readr)
+  library(knitr)
+  library(rprojroot)
+})
+
+ROOT <- rprojroot::find_root(rprojroot::is_rstudio_project)
+SCRIPT_DIR <- file.path(ROOT, "scripts")
+OUT_DIR <- file.path(ROOT, "outputs")
+
+source(file.path(SCRIPT_DIR, "01_load_and_validate_data.R"))
+source(file.path(SCRIPT_DIR, "02_week34_tables_and_text.R"))
+source(file.path(SCRIPT_DIR, "03_plots_and_maps.R"))
+
+priority_table <- read_csv(file.path(OUT_DIR, "priority_table_week34.csv"), show_col_types = FALSE)
+narratives <- readLines(file.path(OUT_DIR, "week34_narratives.txt"))
+measles_ind <- readLines(file.path(OUT_DIR, "measles_lab_indicators.txt"))
+md_total <- readLines(file.path(OUT_DIR, "maternal_deaths_cumulative_total.txt"))
+
+img_measles  <- file.path(OUT_DIR, "measles_lab_by_province.png")
+img_md_cause <- file.path(OUT_DIR, "maternal_deaths_causes_week34.png")
+img_md_map   <- file.path(OUT_DIR, "maternal_deaths_cumulative_map.png")
+```
+
+# 1. Summary
+
+## Key highlights for decision-makers
+
+- **Measles:** Suspected cases were reported in multiple provinces. Strengthen active case search, specimen referral, and rapid response in high-reporting areas.
+- **Anthrax:** Suspected cases were concentrated in Southern Province, indicating continued zoonotic risk. Strengthen One Health coordination and laboratory confirmation.
+- **Malaria:** Malaria remains the leading contributor to weekly morbidity. Prioritize hotspot districts and ensure commodity availability.
+
+# 2. Immediately notifiable diseases and events
+
+```{r}
+cat(paste(narratives[1:4], collapse = "\n"))
+```
+
+## Interpretation and recommendations
+
+Prompt verification and investigation of suspected cases is recommended, particularly where clustering is observed. Provinces should ensure timely reporting and adherence to standard case definitions.
+
+# 3. Other diseases and events
+
+```{r}
+cat(paste(narratives[6:8], collapse = "\n"))
+```
+
+## Interpretation and recommendations
+
+Routine high burden conditions require sustained surveillance, health promotion, and facility readiness. Unusual increases should be investigated to rule out outbreaks.
+
+# 4. Summary report: priority diseases, conditions and events
+
+```{r}
+library(flextable)
+library(officer)
+
+ft <- flextable(priority_table)
+
+ft <- ft |>
+  theme_vanilla() |>
+  fontsize(size = 10, part = "all") |>
+  bold(part = "header") |>
+  bg(part = "header", bg = "#F39C34") |> 
+  color(part = "header", color = "white") |>
+  bg(j = 1, part = "body", bg = "#FCE5CD") |>
+  align(align = "center", part = "all") |>
+  align(j = 1, align = "left", part = "all") |>
+  autofit()
+
+ft
+
+```
+
+# 5. Summary of VPD surveillance indicators
+
+```{r}
+cat(paste(measles_ind, collapse = "\n"))
+```
+
+```{r}
+knitr::include_graphics(img_measles)
+```
+
+## Interpretation and recommendations
+
+Laboratory findings indicate ongoing transmission risk in some provinces. Improve specimen quality, cold chain management, and turnaround time.
+
+# 6. Maternal deaths
+
+```{r}
+knitr::include_graphics(img_md_cause)
+```
+
+```{r}
+knitr::include_graphics(img_md_map)
+```
+
+```{r}
+cat(md_total)
+```
+
+## Interpretation and recommendations
+
+Strengthen emergency obstetric care readiness, referral systems, and implementation of MPDSR recommendations, particularly in high-burden provinces.
+
+# 7. Recommendations to improve this epidemiological bulletin
+
+1. Include week-on-week comparisons.
+2. Add outbreak thresholds.
+3. Standardize visual presentation.
+4. Include data quality notes.
+5. Add an actions taken / next steps section.
+
+---
+Reproducibility note: All outputs are generated automatically from scripts in the scripts folder.
